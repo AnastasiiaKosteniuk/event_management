@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from events.models import Event, EventRegistration
@@ -10,6 +11,11 @@ class EventSerializer(serializers.ModelSerializer):
         model = Event
         fields = ("id", "title", "description", "date", "location", "organizer")
         read_only_fields = ("id", "created_at", "updated_at", "organizer")
+
+    def validate_date(self, value):
+        if value < timezone.now():
+            raise serializers.ValidationError("Event date cannot be in the past.")
+        return value
 
 
 class ParticipantSerializer(serializers.ModelSerializer):
