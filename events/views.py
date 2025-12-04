@@ -13,6 +13,7 @@ from events.serializers import EventSerializer, ParticipantSerializer
 
 
 class EventViewSet(viewsets.ModelViewSet):
+    """A viewset for viewing and editing event instances."""
     queryset = Event.objects.select_related("organizer")
     serializer_class = EventSerializer
 
@@ -30,6 +31,7 @@ class EventViewSet(viewsets.ModelViewSet):
     ordering = ["-date"]
 
     def get_permissions(self):
+        """Instantiates and returns the list of permissions that view requires."""
         if self.action in ["update", "partial_update", "destroy", "participants"]:
             # updating/deleting - only organizer + authenticated
             return [permissions.IsAuthenticated(), IsOrganizer()]
@@ -38,6 +40,7 @@ class EventViewSet(viewsets.ModelViewSet):
             return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
+        """Sets the organizer of the event to the current user."""
         serializer.save(organizer=self.request.user)
 
     @action(detail=True, methods=["post"])

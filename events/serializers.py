@@ -13,6 +13,7 @@ class EventSerializer(serializers.ModelSerializer):
 
 
 class ParticipantSerializer(serializers.ModelSerializer):
+    """Serializer for the EventRegistration model, used to display participants."""
     username = serializers.CharField(source="user.username")
 
     class Meta:
