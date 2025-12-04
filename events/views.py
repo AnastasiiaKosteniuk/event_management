@@ -1,17 +1,33 @@
 from django.db import IntegrityError
 from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
 
+from events.filters import EventFilter
 from events.models import Event, EventRegistration
 from events.permissions import IsOrganizer
 from events.serializers import EventSerializer, ParticipantSerializer
 
 
 class EventViewSet(viewsets.ModelViewSet):
-    queryset = Event.objects.select_related("organizer").order_by("-date")
+    queryset = Event.objects.select_related("organizer")
     serializer_class = EventSerializer
+
+    filter_backends = [
+        DjangoFilterBackend,
+        OrderingFilter,
+        SearchFilter,
+    ]
+
+    filterset_class = EventFilter
+
+    search_fields = ["title", "description", "location"]
+
+    ordering_fields = ["date", "created_at"]
+    ordering = ["-date"]
 
     def get_permissions(self):
         if self.action in ["update", "partial_update", "destroy", "participants"]:
